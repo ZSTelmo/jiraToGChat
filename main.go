@@ -1,14 +1,14 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
+	"strings"
 
+	"github.com/MakeNowJust/heredoc"
 	"jiraToGChat.com/utils"
 )
 
@@ -34,81 +34,54 @@ func main() {
 			panic(err)
 		}
 
-		issue := dataForHook["issue"].(map[string]interface{})
+		// issue := dataForHook["issue"].(map[string]interface{})
+		// user := dataForHook["user"].(map[string]interface{})
+		//changelog := dataForHook["changelog"].(map[string]interface{})
 
-		//fmt.Println(issue)
-		fmt.Println(issue["id"])
+		//issueId := issue["id"]
+		// issueKey := issue["key"]
+		// issueSelf := issue["self"]
 
-		os.Exit(0)
+		// userDisplayName := user["displayName"]
 
-		postBody := `{
+		//issueFields := issue["fields"].(map[string]interface{})
+
+		//summary := issueFields["summary"]
+
+		// templatePostBody := heredoc.Doc(`{"cardsV2":[{"cardId":"unique-card-id","card":{"header":{"title":"%v","subtitle": "%v","imageUrl":"https://logowik.com/content/uploads/images/jira3124.jpg","imageType": "CIRCLE","imageAltText": "Avatar for Jira"},"sections":[{"header": "%v","collapsible": false,"uncollapsibleWidgetsCount":1,"widgets":[{"decoratedText":{"startIcon":{"knownIcon":"STAR"},"text":"<a href=\"%v">%v/a>"}}]}]}}]}`)
+
+		// postBody := fmt.Sprintf(templatePostBody,
+		// 	issueKey,
+		// 	summary,
+		// 	userDisplayName,
+		// 	issueSelf,
+		// 	issueKey,
+		// )
+
+		postBody := heredoc.Doc(`{
     "cardsV2": [
         {
             "cardId": "unique-card-id",
             "card": {
                 "header": {
-                    "title": "Jira",
-                    "subtitle": "Jira BOT",
-                    "imageUrl": "https://developers.google.com/chat/images/quickstart-app-avatar.png",
+                    "title": "JRA-20002",
+                    "subtitle": "99291",
+                    "imageUrl": "https://logowik.com/content/uploads/images/jira3124.jpg",
                     "imageType": "CIRCLE",
                     "imageAltText": "Avatar for Jira"
                 },
                 "sections": [
                     {
-                        "header": "Contact Info",
-                        "collapsible": true,
+                        "header": "Bryan Rollins [Atlassian]",
+                        "collapsible": false,
                         "uncollapsibleWidgetsCount": 1,
                         "widgets": [
                             {
                                 "decoratedText": {
                                     "startIcon": {
-                                        "knownIcon": "EMAIL"
+                                        "knownIcon": "STAR"
                                     },
-                                    "text": "sasha@example.com"
-                                }
-                            },
-                            {
-                                "decoratedText": {
-                                    "startIcon": {
-                                        "knownIcon": "PERSON"
-                                    },
-                                    "text": "<font color=\"#80e27e\">Online</font>"
-                                }
-                            },
-                            {
-                                "decoratedText": {
-                                    "startIcon": {
-                                        "knownIcon": "PHONE"
-                                    },
-                                    "text": "+1 (555) 555-1234"
-                                }
-                            },
-                            {
-                                "buttonList": {
-                                    "buttons": [
-                                        {
-                                            "text": "Share",
-                                            "onClick": {
-                                                "openLink": {
-                                                    "url": "https://example.com/share"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "text": "Edit",
-                                            "onClick": {
-                                                "action": {
-                                                    "function": "goToView",
-                                                    "parameters": [
-                                                        {
-                                                            "key": "viewType",
-                                                            "value": "EDIT"
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        }
-                                    ]
+                                    "text": "<a href=\"https://your-domain.atlassian.net/rest/api/2/issue/99291\">JRA-20002</a>"
                                 }
                             }
                         ]
@@ -117,24 +90,17 @@ func main() {
             }
         }
     ]
-}`
+}`)
 
-		var dataToPost map[string]interface{}
-		err = json.Unmarshal([]byte(postBody), &dataToPost)
-
-		// 	values := map[string]string{
-
-		// 		"username": username, "password": password
-
-		// }
-
-		jsonValue, _ := json.Marshal(dataToPost)
+		payload := strings.NewReader(postBody)
+		//jsonValue, _ := json.Marshal(postBody)
 
 		gchatWebHook := utils.GetENVasString("GCHAT_WEBHOOK")
 
-		resp, err := http.Post(gchatWebHook, "application/json", bytes.NewBuffer(jsonValue))
+		//	resp, err := http.Post(gchatWebHook, "application/json", bytes.NewBuffer(jsonValue))
+		resp, err := http.Post(gchatWebHook, "application/json", payload)
 
-		fmt.Println(w, resp)
+		fmt.Println("Status:", resp.StatusCode)
 
 	})
 
