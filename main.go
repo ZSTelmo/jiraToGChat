@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"jiraToGChat.com/utils"
 )
@@ -24,16 +25,21 @@ func main() {
 			panic(err)
 		}
 
-		responseBody := string(bodyBytes)
-		fmt.Println(responseBody)
+		//responseBody := string(bodyBytes)
+		//fmt.Println(responseBody)
 
-		var dataForHook map[string]interface{}
-		err = json.Unmarshal([]byte(responseBody), &dataForHook)
+		dataForHook := map[string]interface{}{}
+		err = json.Unmarshal(bodyBytes, &dataForHook)
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println(dataForHook["issue"])
+		issue := dataForHook["issue"].(map[string]interface{})
+
+		//fmt.Println(issue)
+		fmt.Println(issue["id"])
+
+		os.Exit(0)
 
 		postBody := `{
     "cardsV2": [

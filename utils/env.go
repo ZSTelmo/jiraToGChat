@@ -15,10 +15,6 @@ func LoadEnvFile() {
 	if err != nil {
 		log.Fatalf("Some error occured. Err: %s", err)
 	}
-
-	val := os.Getenv("PORT")
-	fmt.Println(val)
-
 }
 
 // GetENVasString get a tag from .env as string (default value)
