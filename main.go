@@ -26,7 +26,6 @@ func main() {
 		}
 
 		//responseBody := string(bodyBytes)
-		//fmt.Println(responseBody)
 
 		dataForHook := map[string]interface{}{}
 		err = json.Unmarshal(bodyBytes, &dataForHook)
@@ -34,73 +33,40 @@ func main() {
 			panic(err)
 		}
 
-		// issue := dataForHook["issue"].(map[string]interface{})
-		// user := dataForHook["user"].(map[string]interface{})
+		issue := dataForHook["issue"].(map[string]interface{})
+		user := dataForHook["user"].(map[string]interface{})
 		//changelog := dataForHook["changelog"].(map[string]interface{})
 
 		//issueId := issue["id"]
-		// issueKey := issue["key"]
-		// issueSelf := issue["self"]
+		issueKey := issue["key"]
+		issueSelf := issue["self"]
 
-		// userDisplayName := user["displayName"]
+		userDisplayName := user["displayName"]
 
-		//issueFields := issue["fields"].(map[string]interface{})
+		issueFields := issue["fields"].(map[string]interface{})
 
-		//summary := issueFields["summary"]
+		summary := issueFields["summary"]
 
-		// templatePostBody := heredoc.Doc(`{"cardsV2":[{"cardId":"unique-card-id","card":{"header":{"title":"%v","subtitle": "%v","imageUrl":"https://logowik.com/content/uploads/images/jira3124.jpg","imageType": "CIRCLE","imageAltText": "Avatar for Jira"},"sections":[{"header": "%v","collapsible": false,"uncollapsibleWidgetsCount":1,"widgets":[{"decoratedText":{"startIcon":{"knownIcon":"STAR"},"text":"<a href=\"%v">%v/a>"}}]}]}}]}`)
+		templatePostBody := heredoc.Doc(`{"cardsV2":[{"cardId":"unique-card-id","card":{"header":{"title":"%s","subtitle": "%s","imageUrl":"https://logowik.com/content/uploads/images/jira3124.jpg","imageType": "CIRCLE","imageAltText": "Avatar for Jira"},"sections":[{"header": "%s","collapsible": false,"uncollapsibleWidgetsCount":1,"widgets":[{"decoratedText":{"startIcon":{"knownIcon":"STAR"},"text":"<a href=\"%s\">%s</a>"}}]}]}}]}`)
 
-		// postBody := fmt.Sprintf(templatePostBody,
-		// 	issueKey,
-		// 	summary,
-		// 	userDisplayName,
-		// 	issueSelf,
-		// 	issueKey,
-		// )
-
-		postBody := heredoc.Doc(`{
-    "cardsV2": [
-        {
-            "cardId": "unique-card-id",
-            "card": {
-                "header": {
-                    "title": "JRA-20002",
-                    "subtitle": "99291",
-                    "imageUrl": "https://logowik.com/content/uploads/images/jira3124.jpg",
-                    "imageType": "CIRCLE",
-                    "imageAltText": "Avatar for Jira"
-                },
-                "sections": [
-                    {
-                        "header": "Bryan Rollins [Atlassian]",
-                        "collapsible": false,
-                        "uncollapsibleWidgetsCount": 1,
-                        "widgets": [
-                            {
-                                "decoratedText": {
-                                    "startIcon": {
-                                        "knownIcon": "STAR"
-                                    },
-                                    "text": "<a href=\"https://your-domain.atlassian.net/rest/api/2/issue/99291\">JRA-20002</a>"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    ]
-}`)
+		postBody := fmt.Sprintf(templatePostBody,
+			issueKey,
+			summary,
+			userDisplayName,
+			issueSelf,
+			issueKey,
+		)
 
 		payload := strings.NewReader(postBody)
-		//jsonValue, _ := json.Marshal(postBody)
 
 		gchatWebHook := utils.GetENVasString("GCHAT_WEBHOOK")
 
-		//	resp, err := http.Post(gchatWebHook, "application/json", bytes.NewBuffer(jsonValue))
 		resp, err := http.Post(gchatWebHook, "application/json", payload)
-
-		fmt.Println("Status:", resp.StatusCode)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+		fmt.Printf("Status: %v \n", resp.StatusCode)
 
 	})
 
