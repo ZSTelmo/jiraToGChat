@@ -24,4 +24,4 @@ go.work
 .env
 
 # build
-dist/
+dist/*
